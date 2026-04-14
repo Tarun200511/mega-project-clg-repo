@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import CaseDetails from './pages/CaseDetails';
 import NewAnalysis from './pages/NewAnalysis';
 import CasesArchive from './pages/CasesArchive';
+import DocumentIntelligence from './pages/DocumentIntelligence';
 import Layout from './components/Layout';
 
 // Simple token-based auth guard
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="analyze"     element={<NewAnalysis />} />
           <Route path="cases"       element={<CasesArchive />} />
           <Route path="case/:id"    element={<CaseDetails />} />
+          <Route path="docs"        element={<DocumentIntelligence />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/dashboard" replace />} />

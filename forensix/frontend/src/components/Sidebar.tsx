@@ -2,16 +2,21 @@ import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Crosshair, FolderOpen, LogOut,
-  ShieldAlert, Activity, ChevronRight, Database
+  ShieldAlert, Activity, ChevronRight, Database, Bot, Sparkles, FileText
 } from 'lucide-react';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard',     path: '/dashboard', badge: null },
   { icon: Crosshair,       label: 'New Analysis',  path: '/analyze',   badge: 'AI' },
   { icon: FolderOpen,      label: 'Case Archives', path: '/cases',     badge: null },
+  { icon: FileText,        label: 'Doc Intelligence', path: '/docs',   badge: 'NEW' },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  onOpenBot?: () => void;
+}
+
+export default function Sidebar({ onOpenBot }: SidebarProps) {
   const navigate = useNavigate();
   const [hovered, setHovered] = useState<string | null>(null);
 
@@ -22,7 +27,9 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="w-64 flex flex-col h-full shrink-0 glass border-r border-white/5 relative z-20">
+    <aside className="w-64 flex flex-col h-full shrink-0 border-r border-white/5 relative z-20"
+      style={{ background: 'rgba(7,11,20,0.95)', backdropFilter: 'blur(20px)' }}>
+      
       {/* Logo */}
       <div className="p-6 border-b border-white/5">
         <div className="flex items-center gap-3">
@@ -40,7 +47,7 @@ export default function Sidebar() {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-4 space-y-1">
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         <div className="text-[10px] text-slate-600 uppercase tracking-[0.15em] font-semibold px-3 mb-3">Navigation</div>
         {navItems.map((item) => (
           <NavLink
@@ -58,7 +65,6 @@ export default function Sidebar() {
           >
             {({ isActive }) => (
               <>
-                {/* Active indicator line */}
                 {isActive && (
                   <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-primary rounded-r-full" />
                 )}
@@ -74,6 +80,7 @@ export default function Sidebar() {
         ))}
 
         <div className="text-[10px] text-slate-600 uppercase tracking-[0.15em] font-semibold px-3 mt-6 mb-3">System</div>
+        
         <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-500">
           <Database className="w-4.5 h-4.5" />
           <span className="text-sm">Local Database</span>
@@ -84,19 +91,36 @@ export default function Sidebar() {
           <span className="text-sm">AI Modules</span>
           <span className="ml-auto text-[10px] text-accent font-mono">4/4</span>
         </div>
+
+        {/* AI Bot shortcut */}
+        <div className="mt-3 pt-3 border-t border-white/5">
+          <button
+            onClick={onOpenBot}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:bg-violet/10 hover:text-violet-300 border border-transparent hover:border-violet/20 transition-all duration-200 group"
+          >
+            <div className="relative">
+              <Bot className="w-4.5 h-4.5 text-violet-400 group-hover:scale-110 transition-transform" />
+              <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-accent" />
+            </div>
+            <span className="flex-1 text-sm font-medium text-left">ForensiX AI Bot</span>
+            <span className="badge badge-violet text-[10px]">
+              <Sparkles className="w-2.5 h-2.5" /> NEW
+            </span>
+          </button>
+        </div>
       </nav>
 
       {/* Agent Profile + Logout */}
       <div className="p-3 border-t border-white/5">
         <div className="glass rounded-xl p-3 mb-2 flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center text-white font-bold text-sm">
-            {(localStorage.getItem('fx_agent') || 'AG')[0]}
+            {(localStorage.getItem('fx_agent') || 'AG')[0].toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-sm font-medium text-white truncate">
               {localStorage.getItem('fx_agent') || 'Field Agent'}
             </div>
-            <div className="text-[10px] text-slate-500 font-mono">AUTHORIZED</div>
+            <div className="text-[10px] text-accent font-mono">AUTHORIZED</div>
           </div>
         </div>
         <button

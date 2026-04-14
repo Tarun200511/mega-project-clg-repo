@@ -3,12 +3,13 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, Download, Shield, Droplets, Footprints, ScanFace,
   MapPin, User, Clock, Flag, AlertTriangle, CheckCircle,
-  ChevronDown, ChevronUp, Trash2, Edit3, Save, X
+  ChevronDown, ChevronUp, Trash2, Edit3, Save, X, Bot, Sparkles
 } from 'lucide-react';
 import { getCase, generateReport, deleteCase, updateCase } from '../api';
 import { Case } from '../types';
 import ThreatGauge from '../components/ThreatGauge';
 import EvidenceViewer from '../components/EvidenceViewer';
+import ForensiXBot, { CaseContext } from '../components/ForensiXBot';
 
 // ── AI Result Section ─────────────────────────────────────────────────────────
 function Section({
@@ -234,6 +235,7 @@ export default function CaseDetails() {
   const [editing,   setEditing]   = useState(false);
   const [editStatus, setEditStatus] = useState('Open');
   const [editPriority, setEditPriority] = useState('Medium');
+  const [botExternalOpen, setBotExternalOpen] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -319,6 +321,15 @@ export default function CaseDetails() {
             </>
           ) : (
             <>
+              {/* Ask AI button */}
+              <button
+                onClick={() => setBotExternalOpen(true)}
+                className="flex items-center gap-2 py-2 px-4 rounded-xl text-sm font-semibold border border-violet/30 bg-violet/10 text-violet-300 hover:bg-violet/20 hover:border-violet/50 transition-all duration-200"
+              >
+                <Bot className="w-4 h-4" />
+                Ask AI
+                <Sparkles className="w-3.5 h-3.5 text-violet-400" />
+              </button>
               <button onClick={() => setEditing(true)} className="btn-ghost py-2 px-3 text-sm"><Edit3 className="w-4 h-4" /> Edit</button>
               <button
                 onClick={handleExportPDF}
@@ -428,6 +439,27 @@ export default function CaseDetails() {
           </Section>
         </div>
       </div>
+
+      {/* ── ForensiX AI Bot with case context ── */}
+      <ForensiXBot
+        caseContext={{
+          caseNumber: caseData.case_number,
+          title: caseData.title,
+          description: caseData.description,
+          threatLevel: caseData.threat_level,
+          weaponDetected: caseData.weapon_detected,
+          bloodDetected: caseData.blood_detected,
+          faceDetected: caseData.face_detected,
+          bloodPattern: ai?.blood_analysis?.pattern,
+          weaponsCount: ai?.weapon_detection?.weapons_found || 0,
+          location: caseData.location,
+          status: caseData.status,
+          footprintMatch: ai?.footprint_match?.match ? `Match: ${ai.footprint_match.best_match} (${ai.footprint_match.similarity?.toFixed(1)}%)` : undefined,
+          faceMatches: ai?.face_recognition?.faces?.filter((f: any) => f.matched).map((f: any) => `${f.name} (${f.confidence?.toFixed(0)}%)`).join(', '),
+        }}
+        externalOpen={botExternalOpen}
+        onExternalOpenConsumed={() => setBotExternalOpen(false)}
+      />
     </div>
   );
 }
